@@ -23,19 +23,19 @@ def RunCommand (pc):
                     'powershell.exe',
                     './SetWallpaper.ps1', 
                     pc,
-                    str:basicPaths['RegularImagePath'],
-                    str:basicPaths['LocalDestination'],
-                    str:basicPaths['ImageTextWriterLocation'],
-                    str:basicPaths['LogFileLocation'],
-                    str:config['PythonVersion'],
-                    dict:ownership['DepartmentKeywords'],
-                    str:ownership['Fallback'],
-                    dict:ownership['ContactStrings'],
-                    bool:specialNumberedWallpaper['SpecialRoomDetection'],
-                    str:specialNumberedWallpaper['NumberedBackgroundDirectory'],
-                    dict:specialNumberedWallpaper['SpecialRooms'],
-                    str:basicPaths['AssetTagHive'],
-                    str:basicPaths['AssetTag_REG_SZ'],
+                    basicPaths['RegularImagePath'],
+                    basicPaths['LocalDestination'],
+                    basicPaths['ImageTextWriterLocation'],
+                    basicPaths['LogFileLocation'],
+                    config['PythonVersion'],
+                    ownership['DepartmentKeywords'],
+                    ownership['Fallback'],
+                    ownership['ContactStrings'],
+                    specialNumberedWallpaper['SpecialRoomDetection'],
+                    specialNumberedWallpaper['NumberedBackgroundDirectory'],
+                    specialNumberedWallpaper['SpecialRooms'],
+                    basicPaths['AssetTagHive'],
+                    basicPaths['AssetTag_REG_SZ'],
 
                 ]
     )
@@ -43,7 +43,8 @@ def RunCommand (pc):
 
 for pc_target in target_list:
     sleep(3)
-    executor.submit(RunCommand, pc_target)
+    print(pc_target)
+    RunCommand(pc_target)
 
 
 executor.shutdown()

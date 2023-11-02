@@ -42,7 +42,7 @@ Param(
     [string]$AssetTag_REG_SZ
 
 )
-
+Write-Output $LogFileLocation
 
 function Log ($message) {
     $LogTime = Get-Date -DisplayHint Time
