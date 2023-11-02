@@ -1,6 +1,6 @@
 # YAML Tips:
 # Make sure paths are enclosed in single quotes
-# Paths can use either forwardslash or backslash safely
+# IMPORTANT: write paths Unix-style with '/' NOT Windows-style with '\'
 # Booleans are Yes or no
 
 # Txt file containing PC names you want to create wallpapers for

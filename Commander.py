@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from PIL import Image, ImageDraw, ImageFont
-import subprocess, yaml, json
-from concurrent import futures
-from time import sleep
+import subprocess, yaml
+#from concurrent import futures
+#from time import sleep
 
 
 with open('Config.yaml', 'r') as YAML_reader:
@@ -111,7 +111,6 @@ def write_image(image_location, text_to_write, out_file):
 
 
 def run_per_pc(pc):
-    pc = pc.upper()
 
     if ping(pc) == 0:
         text = format_text(pc)
@@ -128,7 +127,7 @@ def run_per_pc(pc):
 
 def main():
     for pc in target_list:
-        pc = pc.replace('\n', '')
+        pc = pc.replace('\n', '').upper()
         print(pc)
         run_per_pc(pc)
 
