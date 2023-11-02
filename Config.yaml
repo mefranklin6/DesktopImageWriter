@@ -30,7 +30,7 @@ Ownership :
   # Computer ownership is determined through matching naming patterns
   DepartmentKeywords :
     'SC-*' : 'CTS'
-    'CONF-*' : 'CTS
+    'CONF-*' : 'CTS'
   
   # If we can't find a match to determine ownership, fallback to this group
   Fallback : 'ITSS'

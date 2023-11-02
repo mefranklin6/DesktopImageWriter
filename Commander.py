@@ -1,35 +1,50 @@
-import subprocess
+import subprocess, yaml
 from concurrent import futures
 from time import sleep
-import yaml
 
 
 with open('Config.yaml', 'r') as YAML_reader:
-    Config = yaml.safe_load(YAML_reader)
+    config = yaml.safe_load(YAML_reader)
+
+with open(config['TargetList'], 'r') as target_list_file:
+    target_list = target_list_file.readlines()
 
 
+basicPaths = config['BasicPaths']
+ownership = config['Ownership']
+specialNumberedWallpaper = config['SpecialNumberedWallpaper']
 
-
-Executor = futures.ThreadPoolExecutor()
+executor = futures.ThreadPoolExecutor()
 
 
 def RunCommand (pc):
     subprocess.run(
-                    [
+                [
                     'powershell.exe',
-                    'C:/Users/mefranklin/Documents/Github/DeploymentScripts/PC-ConfigurationScript/./GatherFacts.ps1', 
+                    './SetWallpaper.ps1', 
                     pc,
-                    Config['Sqlite3_exe'],
-                    Config['DB_Path']
-                    ]
+                    str:basicPaths['RegularImagePath'],
+                    str:basicPaths['LocalDestination'],
+                    str:basicPaths['ImageTextWriterLocation'],
+                    str:basicPaths['LogFileLocation'],
+                    str:config['PythonVersion'],
+                    dict:ownership['DepartmentKeywords'],
+                    str:ownership['Fallback'],
+                    dict:ownership['ContactStrings'],
+                    bool:specialNumberedWallpaper['SpecialRoomDetection'],
+                    str:specialNumberedWallpaper['NumberedBackgroundDirectory'],
+                    dict:specialNumberedWallpaper['SpecialRooms'],
+                    str:basicPaths['AssetTagHive'],
+                    str:basicPaths['AssetTag_REG_SZ'],
+
+                ]
     )
 
 
-for PC in InvList:
+for pc_target in target_list:
     sleep(3)
-    Executor.submit(RunCommand, PC)
+    executor.submit(RunCommand, pc_target)
 
 
-Executor.shutdown()
-
-print('Scan Executor Shutdown')
+executor.shutdown()
+print('Executor Shutdown')
