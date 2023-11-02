@@ -1,8 +1,11 @@
 import subprocess
 from concurrent import futures
 from time import sleep
-import pyyaml
+import yaml
 
+
+with open('Config.yaml', 'r') as YAML_reader:
+    Config = yaml.safe_load(YAML_reader)
 
 
 
