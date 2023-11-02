@@ -1,0 +1,52 @@
+# YAML Tips:
+# Make sure paths are enclosed in single quotes
+# Paths can use either forwardslash or backslash safely
+# Booleans are Yes or no
+
+BasicPaths:
+  
+  # Path to regular, non-numbered image to be used.
+  RegularImagePath : '\\doit-files\ATEC\CTS\CTS_Distribution\23_Summer\Background.jpg'
+
+  # Local, non-UNC path that the altered image will be saved to.  (Set your GPO to this)
+  # Note: if updating wallpaper, make sure you set this to a unique name, because Windows
+  LocalDestination : 'C:\DesktopWallpaper23_24.jpg'  
+
+  # Python file that adds text over a .jpg and deploys it to the PC's
+  # Will be written to this location if not found
+  ImageTextWriterLoc : 'C:\Temp\ImageTextWriter.py'
+
+  # Major and minor version installed on this machine.  Example: '3.11'
+  PythonVersion : '3.11'
+
+
+Ownership :
+
+  # Computer ownership is determined through matching naming patterns
+  DepartmentKeywords :
+    'SC-*' : 'CTS'
+    'CONF-*' : 'CTS
+  
+  # If we can't find a match to determine ownership, fallback to this group
+  Fallback : 'ITSS'
+
+  # Department : Text that will be written
+  ContactStrings:
+    'CTS' : 'Classroom Technology Services x5475'
+    'ITSS' : 'IT Support Services x4357'
+
+  
+SpecialNumberedWallpaper:
+  
+  # Leave no if ITSS (for now)
+  SpecialRoomDetection : Yes
+  
+  NumberedBackgroundDirectory : '\\doit-files\ATEC\CTS\CTS_Distribution\23_Summer\Background Numbered'
+  
+  # Rooms that receive station-numbered wallpapers
+  SpecialRooms:
+    'SC-THMA116' : 13
+    'SC-YOLO234' : 7
+    'SC-AJH110' : 3
+    'SC-MLIB442' : 7
+  
