@@ -3,6 +3,11 @@
 # Paths can use either forwardslash or backslash safely
 # Booleans are Yes or no
 
+# Txt file containing PC names you want to create wallpapers for
+# One PC name per line
+TargetList: 'C:\Temp\testtargets.txt'
+
+
 BasicPaths:
   
   # Path to regular, non-numbered image to be used.
