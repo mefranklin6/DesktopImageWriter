@@ -18,31 +18,40 @@ Param(
     [string]$PythonVersion,
 
     [Parameter(Mandatory=$true)]
-    [hashtable]$DepartmentKeywords,
+    [string]$DepartmentKeywords,
 
     [Parameter(Mandatory=$true)]
     [string]$OwnershipFallback,
 
     [Parameter(Mandatory=$true)]
-    [hashtable]$ContactStrings,
+    [string]$ContactStrings,
 
     [Parameter(Mandatory=$true)]
-    [bool]$SpecialRoomDetection,
+    [string]$SpecialRoomDetection,
 
     [Parameter(Mandatory=$true)]
     [string]$NumberedBackgroundDir,
 
     [Parameter(Mandatory=$true)]
-    [hashtable]$SpecialRooms,
+    [string]$SpecialRooms,
 
     [Parameter(Mandatory=$true)]
     [string]$AssetTagHive,
 
     [Parameter(Mandatory=$true)]
     [string]$AssetTag_REG_SZ
-
 )
-Write-Output $LogFileLocation
+
+Write-Output '----------------------------------'
+Write-Output $DepartmentKeywords
+Write-Output '----------------------------------'
+$a = ConvertFrom-Json -InputObject $DepartmentKeywords
+$a.psobject.properties | ForEach-Object { $hashtable[$_.Name] = $_.Value }
+Write-Output $DepartmentKeywords
+Write-Output $a
+$a.GetType()
+
+Exit
 
 function Log ($message) {
     $LogTime = Get-Date -DisplayHint Time
@@ -52,19 +61,29 @@ function Log ($message) {
     $LogStr | Out-File "$LogFileLocation/$PC_Wallpaper.txt" -Append
     }
 
+function Quit {
+    Log "QUITTING"
+    Exit
+}
+
 
 Log "INFO: STARTED Write Wallpaper for $PC"
 
+# Handle conversion from python
+$SpecialRoomDetection = [System.Convert]::ToBoolean($SpecialRoomDetection)
+
+
+
 if (!(Test-Connection -ComputerName $PC -Count 1)) {
-    Log "FATAL: $PC IS NOT ONLINE OR WRONG NAME"
+    Log "ERROR: $PC IS NOT ONLINE OR WRONG NAME"
     Quit
 }
 
 # Form UNC path from $LocalDestination setting
-$LocalDestParts = $LocalDestination.split(':').Replace('\', '')
+$LocalDestParts = $LocalDestination.split(':').Replace('/', '')
 $LocalDrive = $LocalDestParts[0]
 $LocalPath = $LocalDestParts[1]
-$LocalDestination_UNC = "\\$PC\$LocalDrive$\$LocalPath"
+$LocalDestination_UNC = "//$PC/$LocalDrive$/$LocalPath"
 
 $PythonCommand = "python$PythonVersion"
 
@@ -74,7 +93,9 @@ $PC = $PC.ToUpper()
 $MatchedDepartmentKey = $null
 $Department = $null
 
-foreach ($department_key in $DepartmentKeywords.Keys) {
+foreach ($department_key in [hashtable]$DepartmentKeywords.Keys) {
+    Write-Output $DepartmentKeywords
+    Write-Output $department_key
     if ($PC -like $department_key) {
         $MatchedDepartmentKey = $department_key
         Write-Output "MATCHED KEY $MatchedDepartmentKey"
@@ -154,9 +175,9 @@ if ($SpecialRoomDetection -eq $true) {
     }
 }
 
-
+#FIXME: Find a way to not hard-code the registry path
 $AssetTag = Invoke-Command -ComputerName $PC -ScriptBlock {
-    (Get-ItemProperty "$AssetTagHive" -Name $AssetTag_REG_SZ).$AssetTag_REG_SZ
+    (Get-ItemProperty "REGISTRY::HKEY_LOCAL_MACHINE\SOFTWARE\Chico" -Name Chico_AssetTag).Chico_AssetTag
 }
 
 $AssetTag = $AssetTag.ToUpper()
@@ -199,7 +220,7 @@ while ($SetNumberedBackground -eq $true) {
         Break
     }
 
-    if ($PCStationNumber -eq $null) {
+    if ($null -eq $PCStationNumber) {
         Log $SpecialErrorMsg
         $SetNumberedBackground = $false
         Break

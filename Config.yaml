@@ -5,24 +5,23 @@
 
 # Txt file containing PC names you want to create wallpapers for
 # One PC name per line
-TargetList: 'C:\Temp\testtargets.txt'
+TargetList: 'C:/Temp/testtargets.txt'
 
 
 BasicPaths:
   
   # Path to regular, non-numbered image to be used.
-  RegularImagePath : '\\doit-files\ATEC\CTS\CTS_Distribution\23_Summer\Background.jpg'
+  RegularImagePath : '//doit-files/ATEC/CTS/CTS_Distribution/23_Summer/Background.jpg'
 
   # Local, non-UNC path that the altered image will be saved to.  (Set your GPO to this)
   # Note: if updating wallpaper, make sure you set this to a unique name, because Windows
-  LocalDestination : 'C:\DesktopWallpaper23_24.jpg'  
+  LocalDestination : 'C:/DesktopWallpaper23_24.jpg'  
 
-  # Python file that adds text over a .jpg and deploys it to the PC's
-  # Will be written to this location if not found
-  ImageTextWriterLocation : 'C:\Temp\ImageTextWriter.py'
+  LogFileLocation : 'C:/Temp/'
 
-  LogFileLocation : 'C:\Temp\'
+  AssetTagHive: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/Chico'
 
+  AssetTag_REG_SZ: 'Chico_AssetTag'
   
 # Major and minor version installed on this machine.  Example: '3.11'
 PythonVersion : '3.11'
@@ -32,8 +31,8 @@ Ownership :
 
   # Computer ownership is determined through matching naming patterns
   DepartmentKeywords :
-    'SC-*' : 'CTS'
-    'CONF-*' : 'CTS'
+    'SC-' : 'CTS'
+    'CONF-' : 'CTS'
   
   # If we can't find a match to determine ownership, fallback to this group
   Fallback : 'ITSS'
@@ -49,7 +48,7 @@ SpecialNumberedWallpaper:
   # Leave no if ITSS (for now)
   SpecialRoomDetection : Yes
   
-  NumberedBackgroundDirectory : '\\doit-files\ATEC\CTS\CTS_Distribution\23_Summer\Background Numbered'
+  NumberedBackgroundDirectory : '//doit-files/ATEC/CTS/CTS_Distribution/23_Summer/Background Numbered'
   
   # Rooms that receive station-numbered wallpapers
   SpecialRooms:
