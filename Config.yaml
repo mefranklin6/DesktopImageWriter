@@ -19,7 +19,7 @@ BasicPaths:
 
   # Python file that adds text over a .jpg and deploys it to the PC's
   # Will be written to this location if not found
-  ImageTextWriterLoc : 'C:\Temp\ImageTextWriter.py'
+  ImageTextWriterLocation : 'C:\Temp\ImageTextWriter.py'
 
   LogFileLocation : 'C:\Temp\'
 
