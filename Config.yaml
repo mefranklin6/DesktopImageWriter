@@ -21,8 +21,11 @@ BasicPaths:
   # Will be written to this location if not found
   ImageTextWriterLoc : 'C:\Temp\ImageTextWriter.py'
 
-  # Major and minor version installed on this machine.  Example: '3.11'
-  PythonVersion : '3.11'
+  LogFileLocation : 'C:\Temp\'
+
+  
+# Major and minor version installed on this machine.  Example: '3.11'
+PythonVersion : '3.11'
 
 
 Ownership :
