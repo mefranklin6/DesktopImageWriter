@@ -18,6 +18,7 @@ log.basicConfig(
 
 log.debug(f'Config: {str(config)}')
 
+
 try:
     with open(config['TargetList'], 'r', encoding='utf-8') as target_list_file:
         target_list = target_list_file.readlines()
@@ -67,9 +68,32 @@ def match_department(
             return department_strings[fallback]
         
 
-
 if specialNumberedWallpaper['SpecialRoomDetection'] == True:
     log.info('attempting to match special room')
+    
+
+
+
+    def detect_special_room(pc) -> bool:
+        for room, max_number in specialNumberedWallpaper['SpecialRooms'].items():
+            if room in pc:
+                log.debug(f'{pc} detected as special room {room} with {max_number} of stations')
+                return True
+            log.debug(f'{pc} not in a special room')
+            return False
+    
+
+    def match_special_room(pc):
+        if detect_special_room(pc):
+            pass
+
+    match_special_room(pc)
+
+
+
+    
+    
+    
     set_numbered_wallpaper = False #TODO: this
 
 
