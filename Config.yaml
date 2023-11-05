@@ -17,7 +17,7 @@ BasicPaths:
   # Note: if updating wallpaper, make sure you set this to a unique name, because Windows
   LocalDestination : 'C:/DesktopWallpaper23_24.jpg'  
 
-  LogFileLocation : 'C:/Temp/'
+  LogFileDirectory : 'C:/Temp'
 
   AssetTagHive: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/Chico'
 
