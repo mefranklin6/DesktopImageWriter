@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from PIL import Image, ImageDraw, ImageFont
-import subprocess, yaml
+import subprocess, yaml, re
 import logging as log
 #from concurrent import futures
 #from time import sleep
@@ -72,22 +72,31 @@ if specialNumberedWallpaper['SpecialRoomDetection'] == True:
     log.info('attempting to match special room')
     
 
-
-
-    def detect_special_room(pc) -> bool:
+    # returns key, value from dict if match found
+    def detect_special_room(pc) -> tuple:
         for room, max_number in specialNumberedWallpaper['SpecialRooms'].items():
             if room in pc:
                 log.debug(f'{pc} detected as special room {room} with {max_number} of stations')
-                return True
+                return (room, max_number)
             log.debug(f'{pc} not in a special room')
-            return False
     
 
     def match_special_room(pc):
-        if detect_special_room(pc):
-            pass
+        room, max_number = detect_special_room(pc)
+        
+        if room is None:
+            return None
+        
+        else:
+            cleaned = pc.replace(room, '').replace('-','')
+            searched = re.search(r'(\d{1-2})', cleaned)
+            if int(searched[1]) <= max_number:
+                print(int(searched[1]))
 
-    match_special_room(pc)
+
+
+
+    
 
 
 
