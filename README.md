@@ -10,11 +10,11 @@ Written for and at CSU Chico to reduce confusion over what office/department sup
     Note: this can be done via Group Policy at User Configuration > Policies > Admin Templates > Control Panel > Desktop > Desktop > DesktopWallpaper
 
 ## Requires:
-- Windows 10+
-- Python 3.10+ (Written in Python 3.11.6)
-- Pillow lib for Python.  (pip3 install Pillow, written with 10.0.0)
-- PowershellRemoting enabled
-- Run by a user who is in the admin group on target machines
+- Windows 10+ on your machine and target machines
+- Python 3.10+ on your machine (Written in Python 3.11.6)
+- Pillow lib for Python on your machine.  (pip3 install Pillow, written with 10.0.0)
+- PowershellRemoting enabled in your domain.
+- Run by a user who is in the admin group on target machines.
 
 # Config.yaml
 TargetList: full path to text file containing a list of target PC's.  One PC per line, no spaces please.
