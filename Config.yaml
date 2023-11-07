@@ -12,9 +12,8 @@ TargetList: 'C:/Temp/testtargets.txt'
 BasicPaths:
 
   ImageSourcePaths:
-    CTS_RegularImagePath : '//doit-files/ATEC/CTS/CTS_Distribution/23_Summer/Background.jpg'
-    ITSS_Labs_RegularImagePath : ''
-    ITSS_RegularImagePath : ''
+    Department1 : '//my-server/Background.jpg'
+    Department2 : '//their-server/Background.jpg'
 
   # Local, non-UNC path that the altered image will be saved to.  (Set your GPO to this)
   # Note: if updating wallpaper, make sure you set this to a unique name, because Windows
@@ -22,38 +21,37 @@ BasicPaths:
 
   LogFileDirectory : 'C:/Temp/WallpaperLogs'
 
-  AssetTagKey: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/Chico'
-  AssetTag_REG_SZ: 'Chico_AssetTag'
+  AssetTagKey: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/YourOrgIfYouHaveThis'
+  AssetTag_REG_SZ: 'AssetTag'
   
 
 Ownership :
   
   # Used for strict name matching
   DepartmentRegexPatterns : 
-    '^SC-{1}[a-zA-Z]{3,4}\d{3,4}-{1}\d{1,2}' : 'CTS, SPECIAL'
-    '^SC-{1}[a-zA-Z]{3,4}\d{3,4}' :            'CTS, Classroom'
-    '^CONF-{1}[a-zA-Z]{3,4}\d{3,4}' :          'CTS, Conference'
-    '^[a-zA-Z]{1}\d{5}-{1}.*$' :               'ITSS, Labs'
-    '^[a-zA-Z]{1}\d{5}$' :                     'ITSS'   
+    '^SC-{1}[a-zA-Z]{3,4}\d{3,4}-{1}\d{1,2}' : 'Department1, SPECIAL'
+    '^SC-{1}[a-zA-Z]{3,4}\d{3,4}' :            'Department1, Classroom'
+    '^CONF-{1}[a-zA-Z]{3,4}\d{3,4}' :          'Department1, Conference'
+    '^[a-zA-Z]{1}\d{5}-{1}.*$' :               'Department2, Labs'
+    '^[a-zA-Z]{1}\d{5}$' :                     'Department2, Regular'   
 
   # Used for loose name matching
   DepartmentKeywords :
-    'SC-*' : 'CTS'
-    'CONF-*' : 'CTS'
+    'COMP-*' : 'Department1'
+    'LAB-*' : 'Department2'
 
   # used for Get-ADComputer matching
   DepartmentOU :
-    'Classrooms' : 'CTS'
-    'Conference' : 'CTS'
-    'GLNN 104' : 'ITSS'
+    'Classrooms' : 'Department1'
+    'ScienceLabs' : 'Department2'
 
   # If we can't find a match to determine ownership, fallback to this group
-  Fallback : 'ITSS'
+  Fallback : 'Department2'
 
   # 'Department' : 'Text that will be written below PC name and Asset Tag number'
   ContactStrings:
-    'CTS' : 'Classroom Technology Services x5475'
-    'ITSS' : 'IT Support Services x4357'
+    'Department1' : 'Some Office 555-6666'
+    'Department2' : 'Your Help Desk 555-5555'
 
 
 TextPosition:
