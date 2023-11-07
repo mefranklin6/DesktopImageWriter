@@ -11,9 +11,12 @@ from time import sleep
 with open('Config.yaml', 'r') as YAML_reader:
     config = yaml.safe_load(YAML_reader)
 
+# YAML Sections
+BASIC_PATHS = config['BasicPaths']
+OWNERSHIP = config['Ownership']
+
 
 LOG_PATH = config["BasicPaths"]["LogFileDirectory"]
-
 
 def confirm_log_path(local_directory) -> None:
     if not path.exists(local_directory):
@@ -43,12 +46,6 @@ try:
 except:
     log.fatal(f'Can not open target list at {config["TargetList"]}')
     exit(1)
-
-
-# YAML Sections
-BASIC_PATHS = config['BasicPaths']
-OWNERSHIP = config['Ownership']
-
 
 
 
