@@ -22,8 +22,7 @@ BasicPaths:
 
   LogFileDirectory : 'C:/Temp/WallpaperLogs'
 
-  AssetTagHive: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/Chico'
-
+  AssetTagKey: 'REGISTRY::HKEY_LOCAL_MACHINE/SOFTWARE/Chico'
   AssetTag_REG_SZ: 'Chico_AssetTag'
   
 

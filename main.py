@@ -27,9 +27,9 @@ confirm_log_path(LOG_PATH)
 
 log.basicConfig(
         filename=f'{LOG_PATH}/DesktopImageWriter_Log.log',
-        format='%(asctime)s %(message)s',
+        format='%(asctime)s - %(levelname)s - %(message)s',
         encoding='utf-8',
-        level=log.DEBUG,
+        level=log.INFO,
 )
 
 
@@ -142,11 +142,11 @@ def pair_contact_string(department:str, contact_strings:dict) -> str:
     return contact_string
 
 
-def read_registry(pc, registry_hive, registry_sz) -> str:
+def read_registry(pc, registry_key, registry_sz) -> str:
     # translate to microsoft style shashes
-    registry_hive = registry_hive.replace('/', '\\') 
+    registry_key = registry_key.replace('/', '\\') 
 
-    invoke_command = f'Invoke-Command -ComputerName {pc} -ScriptBlock {{(Get-ItemProperty "{registry_hive}" -Name {registry_sz}).{registry_sz}}}'
+    invoke_command = f'Invoke-Command -ComputerName {pc} -ScriptBlock {{(Get-ItemProperty "{registry_key}" -Name {registry_sz}).{registry_sz}}}'
     log.debug(f'{pc} Invoke-Command String: {invoke_command}')
     
     cmd = subprocess.run(
@@ -199,7 +199,7 @@ def write_image(image_location, text_to_write, out_file) -> None:
 
 def decide_image_source(department:str, options:dict):
     if ',' in department:
-        department = department.split(',')[0]
+        department = department.split(',')[0].strip()
     
     for department_key, path_value in options.items():
         if department in department_key:
@@ -224,7 +224,7 @@ def run_per_pc(pc) -> None:
     
     asset_tag = read_registry(
         pc,
-        BASIC_PATHS['AssetTagHive'],
+        BASIC_PATHS['AssetTagKey'],
         BASIC_PATHS['AssetTag_REG_SZ']
     )
     if not asset_tag:
