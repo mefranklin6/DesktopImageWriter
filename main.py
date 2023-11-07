@@ -110,7 +110,7 @@ def matching_AD(pc: str, department_ou: dict) -> str:
 # order of matching is up for debate:
 # I like regex (strict) matching first because CTS has 'special' numbered rooms.
 # Arguably AD matching is more accurate but slower, stresses the domain controllers
-# ... and harder to do 'special room' matching
+# ...takes more time to configure, and harder to do 'special room' matching
 
 
 def ownership_match(pc):
