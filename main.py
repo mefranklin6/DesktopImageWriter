@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from PIL import Image, ImageDraw, ImageFont
-import subprocess, yaml, re
+import subprocess
+import yaml
+import re
 import logging as log
 from os import mkdir, path
 from concurrent import futures
@@ -18,6 +20,7 @@ OWNERSHIP = config['Ownership']
 
 LOG_PATH = config["BasicPaths"]["LogFileDirectory"]
 
+
 def confirm_log_path(local_directory) -> None:
     if not path.exists(local_directory):
         print(f'Creating directory for logs at {local_directory}')
@@ -25,14 +28,15 @@ def confirm_log_path(local_directory) -> None:
     else:
         print(f'logging to {local_directory}')
 
+
 confirm_log_path(LOG_PATH)
 
 
 log.basicConfig(
-        filename=f'{LOG_PATH}/DesktopImageWriter_Log.log',
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        encoding='utf-8',
-        level=log.INFO,
+    filename=f'{LOG_PATH}/DesktopImageWriter_Log.log',
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    encoding='utf-8',
+    level=log.INFO,
 )
 
 
@@ -48,25 +52,24 @@ except:
     exit(1)
 
 
-
-def ping(ip : str) -> int:
+def ping(ip: str) -> int:
     return subprocess.call(f'powershell.exe ping -n 1 {ip}')
     # returns 0 for online, 1 for error
 
 
-def local_to_UNC_path (pc : str, local_path : str) -> str:
+def local_to_UNC_path(pc: str, local_path: str) -> str:
     local_parts = local_path.replace('/', '').split(':')
     drive = local_parts[0]
     path = local_parts[1]
     format = f'//{pc}/{drive}$/{path}'
-    
+
     log.debug(f'{pc} Local Path: {local_path}')
     log.debug(f'{pc} UNC Path: {format}')
-    
+
     return format
 
-    
-def matching_strict(pc:str, department_regex_patterns:dict) -> str:
+
+def matching_strict(pc: str, department_regex_patterns: dict) -> str:
     if department_regex_patterns:
         for pattern, department in department_regex_patterns.items():
             if re.match(pattern, pc):
@@ -75,26 +78,26 @@ def matching_strict(pc:str, department_regex_patterns:dict) -> str:
     return None
 
 
-def matching_loose(pc:str, department_keywords:dict) -> str:
+def matching_loose(pc: str, department_keywords: dict) -> str:
     if department_keywords:
         for key, department in department_keywords.items():
             if key in pc:
                 return department
     log.warning(f'{pc} No department keywords detected')
     return None
-    
-        
-def matching_AD(pc:str, department_ou:dict) -> str:
+
+
+def matching_AD(pc: str, department_ou: dict) -> str:
     AD_query_base = 'Get-ADComputer -Filter '
     AD_query_filter = f'Name -like "{pc}"'
     AD_Query = f"({AD_query_base}'{AD_query_filter}').DistinguishedName"
-            
+
     AD_Return = subprocess.run(
-                [
-                    'powershell.exe',
-                     AD_Query
-                ],
-                capture_output=True
+        [
+            'powershell.exe',
+            AD_Query
+        ],
+        capture_output=True
     )
 
     if AD_Return.returncode == 0:
@@ -107,7 +110,9 @@ def matching_AD(pc:str, department_ou:dict) -> str:
 # order of matching is up for debate:
 # I like regex (strict) matching first because CTS has 'special' numbered rooms.
 # Arguably AD matching is more accurate but slower, stresses the domain controllers
-#... and harder to do 'special room' matching
+# ... and harder to do 'special room' matching
+
+
 def ownership_match(pc):
     matched = matching_strict(pc, OWNERSHIP['DepartmentRegexPatterns'])
     if matched:
@@ -126,32 +131,32 @@ def ownership_match(pc):
 
     log.error(f'{pc} Failed all matching!!!!!!')
     log.info(f'{pc} falling back to {OWNERSHIP["Fallback"]}')
-    return None 
+    return None
 
 
-def pair_contact_string(department:str, contact_strings:dict) -> str:
+def pair_contact_string(department: str, contact_strings: dict) -> str:
     if ',' in department:
         contact_key = department.split(',')[0]
     else:
         contact_key = department
-    
+
     contact_string = contact_strings[contact_key]
     return contact_string
 
 
 def read_registry(pc, registry_key, registry_sz) -> str:
     # translate to microsoft style shashes
-    registry_key = registry_key.replace('/', '\\') 
+    registry_key = registry_key.replace('/', '\\')
 
     invoke_command = f'Invoke-Command -ComputerName {pc} -ScriptBlock {{(Get-ItemProperty "{registry_key}" -Name {registry_sz}).{registry_sz}}}'
     log.debug(f'{pc} Invoke-Command String: {invoke_command}')
-    
+
     cmd = subprocess.run(
         [
-        'powershell.exe',
-         invoke_command
+            'powershell.exe',
+            invoke_command
         ],
-        capture_output=True, 
+        capture_output=True,
         text=True
     )
 
@@ -159,7 +164,7 @@ def read_registry(pc, registry_key, registry_sz) -> str:
 
     asset_tag = str(cmd.stdout).upper().strip()
     log.info(f'{pc} asset tag: {asset_tag}')
-    
+
     return asset_tag
 
 
@@ -174,7 +179,7 @@ def format_text(pc, asset_tag, contact_string):
 
 
 def write_image(image_location, text_to_write, out_file) -> None:
-    image = Image.open(image_location) 
+    image = Image.open(image_location)
     draw = ImageDraw.Draw(image)
 
     font = ImageFont.truetype('arial.ttf', 30)
@@ -189,15 +194,16 @@ def write_image(image_location, text_to_write, out_file) -> None:
     # offset handles text outline since there's no built-in way to do that
     x, y = text_position
     for offset in [(1, 1), (-1, -1), (1, -1), (-1, 1)]:
-        draw.text((x + offset[0], y + offset[1]), text, font=font, fill=outline_color)
+        draw.text((x + offset[0], y + offset[1]),
+                  text, font=font, fill=outline_color)
     draw.text(text_position, text, font=font, fill=text_color)
     image.save(out_file)
 
 
-def decide_image_source(department:str, options:dict):
+def decide_image_source(department: str, options: dict):
     if ',' in department:
         department = department.split(',')[0].strip()
-    
+
     for department_key, path_value in options.items():
         if department in department_key:
             log.debug(f'Image Path set to {path_value}')
@@ -218,7 +224,7 @@ def run_per_pc(pc) -> None:
     if ping(pc) != 0:
         log.error(f'{pc} Offline!')
         return None
-    
+
     asset_tag = read_registry(
         pc,
         BASIC_PATHS['AssetTagKey'],
@@ -248,7 +254,7 @@ def run_per_pc(pc) -> None:
     if not formatted_text:
         log.error(f'{pc} Failed at formatting text')
         return None
-        
+
     unc_save_path = local_to_UNC_path(
         pc,
         BASIC_PATHS['LocalDestination']
@@ -272,7 +278,7 @@ def run_per_pc(pc) -> None:
     )
 
     log.debug(f'{pc} wrote image')
-   
+
     sleep(1)
 
     confirmation = confirm(unc_save_path)
@@ -287,6 +293,8 @@ EXECUTOR = futures.ThreadPoolExecutor()
 log.debug('Executor init')
 
 # handles async
+
+
 def main():
     for pc in target_list:
         pc = pc.upper()
@@ -299,4 +307,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
