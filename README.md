@@ -42,8 +42,11 @@ TargetList: full path to text file containing a list of target PC's.  One PC per
 
   ContactStrings:  Key=Department/Office Value=Text to be written.  Ex: 'CTS' : 'Classroom Technology Services xxx-xxx-xxxx'
 
-## TextPosition: This may take some trial and error to find an aesthetically pleasing location
+## TextPosition: 
+This may take some trial and error to find an aesthetically pleasing location
+
   X: X-Axis, in pixels, that the text is written to
+
   Y: Y-Axis, in pixels, that the text is written to
 
   
