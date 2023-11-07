@@ -129,7 +129,7 @@ def ownership_match(pc):
         log.info(f'{pc} Matched {matched} with Active Directory matching')
         return matched
 
-    log.error(f'{pc} Failed all matching!!!!!!')
+    log.error(f'{pc} FAILED ALL MATCHING!')
     log.info(f'{pc} falling back to {OWNERSHIP["Fallback"]}')
     return None
 
@@ -222,7 +222,7 @@ def confirm(unc_path) -> int:
 def run_per_pc(pc) -> None:
 
     if ping(pc) != 0:
-        log.error(f'{pc} Offline!')
+        log.error(f'{pc} OFFLINE!')
         return None
 
     asset_tag = read_registry(
@@ -231,7 +231,7 @@ def run_per_pc(pc) -> None:
         BASIC_PATHS['AssetTag_REG_SZ']
     )
     if not asset_tag:
-        log.error(f'{pc} Failed at Asset Tag')
+        log.error(f'{pc} FAILED AT ASSET TAG')
         return None
 
     department = ownership_match(pc)
@@ -243,7 +243,7 @@ def run_per_pc(pc) -> None:
         OWNERSHIP['ContactStrings'],
     )
     if not contact_string:
-        log.error(f'{pc} Failed at Contact String')
+        log.error(f'{pc} FAILED AT CONTACT STRING')
         return None
 
     formatted_text = format_text(
@@ -252,7 +252,7 @@ def run_per_pc(pc) -> None:
         contact_string
     )
     if not formatted_text:
-        log.error(f'{pc} Failed at formatting text')
+        log.error(f'{pc} FAILED AT FORMATTING TEXT')
         return None
 
     unc_save_path = local_to_UNC_path(
@@ -260,7 +260,7 @@ def run_per_pc(pc) -> None:
         BASIC_PATHS['LocalDestination']
     )
     if not unc_save_path:
-        log.error(f'{pc} failed at UNC path conversion')
+        log.error(f'{pc} FAILED AT UNC PATH CONVERSION')
         return None
 
     image_source = decide_image_source(
@@ -268,7 +268,7 @@ def run_per_pc(pc) -> None:
         BASIC_PATHS['ImageSourcePaths']
     )
     if not image_source:
-        log.error(f'{pc} failed at decide image source')
+        log.error(f'{pc} FAILED AT DECIDE IMAGE SOURCE')
         return None
 
     write_image(
