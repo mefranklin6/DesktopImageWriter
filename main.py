@@ -12,12 +12,8 @@ with open('Config.yaml', 'r') as YAML_reader:
     config = yaml.safe_load(YAML_reader)
 
 
-if config['Debug'] == True:
-    LOG_LEVEL = 'DEBUG'
-else:
-    LOG_LEVEL = 'INFO'
-
 LOG_PATH = config["BasicPaths"]["LogFileDirectory"]
+
 
 def confirm_log_path(local_directory) -> None:
     if not path.exists(local_directory):
@@ -31,8 +27,9 @@ confirm_log_path(LOG_PATH)
 
 log.basicConfig(
         filename=f'{LOG_PATH}/DesktopImageWriter_Log.log',
+        format='%(asctime)s %(message)s',
         encoding='utf-8',
-        level=log.INFO,
+        level=log.DEBUG,
 )
 
 
@@ -51,7 +48,7 @@ except:
 # YAML Sections
 BASIC_PATHS = config['BasicPaths']
 OWNERSHIP = config['Ownership']
-SPECIAL_NUMBERED_WALLPAPER = config['SpecialNumberedWallpaper']
+
 
 
 
@@ -66,19 +63,18 @@ def local_to_UNC_path (pc : str, local_path : str) -> str:
     path = local_parts[1]
     format = f'//{pc}/{drive}$/{path}'
     
-    log.debug(f'Local Path: {local_path}')
-    log.debug(f'UNC Path: {format}')
+    log.debug(f'{pc} Local Path: {local_path}')
+    log.debug(f'{pc} UNC Path: {format}')
     
     return format
 
     
 def matching_strict(pc:str, department_regex_patterns:dict) -> str:
     if department_regex_patterns:
-
         for pattern, department in department_regex_patterns.items():
             if re.match(pattern, pc):
                 return department
-    log.warning(f'No department regex patterns detected')
+    log.warning(f'{pc} No department regex patterns detected')
     return None
 
 
@@ -87,7 +83,7 @@ def matching_loose(pc:str, department_keywords:dict) -> str:
         for key, department in department_keywords.items():
             if key in pc:
                 return department
-    log.warning('No department keywords detected')
+    log.warning(f'{pc} No department keywords detected')
     return None
     
         
@@ -105,32 +101,36 @@ def matching_AD(pc:str, department_ou:dict) -> str:
     )
 
     if AD_Return.returncode == 0:
-        log.debug(f'AD Return raw: {str(AD_Return)}')
+        log.debug(f'{pc} AD Return raw: {str(AD_Return)}')
         for ou, ou_department in department_ou.items():
             if f'OU={ou}' in str(AD_Return):
                 return ou_department
     return None
 
-
+# order of matching is up for debate:
+# I like regex (strict) matching first because CTS has 'special' numbered rooms.
+# Arguably AD matching is more accurate but slower, stresses the domain controllers
+#... and harder to do 'special room' matching
 def ownership_match(pc):
     matched = matching_strict(pc, OWNERSHIP['DepartmentRegexPatterns'])
     if matched:
-        log.info(f'Matched {matched} with STRICT matching')
+        log.info(f'{pc} Matched {matched} with STRICT matching')
         return matched
 
     matched = matching_loose(pc, OWNERSHIP['DepartmentKeywords'])
     if matched:
-        log.info(f'Matched {matched} with LOOSE matching')
+        log.info(f'{pc} Matched {matched} with LOOSE matching')
         return matched
 
     matched = matching_AD(pc, OWNERSHIP['DepartmentOU'])
     if matched:
-        log.info(f'Matched {matched} with Active Directory matching')
+        log.info(f'{pc} Matched {matched} with Active Directory matching')
         return matched
 
-    log.error(f'Failed all matching for {pc}!!!!!!')
-    log.info(f'falling back to {OWNERSHIP["Fallback"]}')
+    log.error(f'{pc} Failed all matching!!!!!!')
+    log.info(f'{pc} falling back to {OWNERSHIP["Fallback"]}')
     return None 
+
 
 def pair_contact_string(department:str, contact_strings:dict) -> str:
     if ',' in department:
@@ -147,7 +147,7 @@ def read_registry(pc, registry_hive, registry_sz) -> str:
     registry_hive = registry_hive.replace('/', '\\') 
 
     invoke_command = f'Invoke-Command -ComputerName {pc} -ScriptBlock {{(Get-ItemProperty "{registry_hive}" -Name {registry_sz}).{registry_sz}}}'
-    log.debug(f'Invoke-Command String: {invoke_command}')
+    log.debug(f'{pc} Invoke-Command String: {invoke_command}')
     
     cmd = subprocess.run(
         [
@@ -158,7 +158,7 @@ def read_registry(pc, registry_hive, registry_sz) -> str:
         text=True
     )
 
-    log.debug(f'invoke command raw return: {str(cmd)}')
+    log.debug(f'{pc} invoke command raw return: {str(cmd)}')
 
     asset_tag = str(cmd.stdout).upper().strip()
     log.info(f'{pc} asset tag: {asset_tag}')
@@ -172,8 +172,7 @@ def format_text(pc, asset_tag, contact_string):
     Asset Tag: {asset_tag}
     {contact_string}
 '''
-    log.debug(f'format_text output {format}')
-    
+    log.debug(f'{pc} format_text output {format}')
     return format
 
 
@@ -182,7 +181,9 @@ def write_image(image_location, text_to_write, out_file) -> None:
     draw = ImageDraw.Draw(image)
 
     font = ImageFont.truetype('arial.ttf', 30)
-    text_position = (1400, 1125)
+    text_position_x = config['TextPosition']['X']
+    text_position_y = config['TextPosition']['Y']
+    text_position = (text_position_x, text_position_y)
     outline_color = 'black'
     text_color = 'white'
 
@@ -197,9 +198,12 @@ def write_image(image_location, text_to_write, out_file) -> None:
 
 
 def decide_image_source(department:str, options:dict):
+    if ',' in department:
+        department = department.split(',')[0]
+    
     for department_key, path_value in options.items():
         if department in department_key:
-            log.debug(f'Image Path set to  {path_value}')
+            log.debug(f'Image Path set to {path_value}')
             return path_value
     return None
 
@@ -211,10 +215,8 @@ def confirm(unc_path) -> int:
     return int(test_path)
 
 
+# the main single-threaded function
 def run_per_pc(pc) -> None:
-    # returns True if confirmed success
-    # returns False if commands executed but success not comnfirmed
-    # returns None for failure
 
     if ping(pc) != 0:
         log.error(f'{pc} Offline!')
@@ -263,7 +265,7 @@ def run_per_pc(pc) -> None:
         BASIC_PATHS['ImageSourcePaths']
     )
     if not image_source:
-        log.error(f'{pc} failed at determine image source')
+        log.error(f'{pc} failed at decide image source')
         return None
 
     write_image(
@@ -272,7 +274,7 @@ def run_per_pc(pc) -> None:
         unc_save_path
     )
 
-    log.debug('wrote image')
+    log.debug(f'{pc} wrote image')
    
     sleep(1)
 
@@ -281,19 +283,21 @@ def run_per_pc(pc) -> None:
     if confirmation == 0:
         log.info(f'{pc} Confirmed Success!')
     else:
-        log.warning(f'Could not confirm success on {pc}')
+        log.warning(f'{pc} NOT confirmed')
 
 
 EXECUTOR = futures.ThreadPoolExecutor()
+log.debug('Executor init')
 
-
+# handles async
 def main():
     for pc in target_list:
         pc = pc.upper()
         sleep(3)
         log.info(f'STARTED on {pc}')
         EXECUTOR.submit(run_per_pc, pc)
-        log.info(f'-------------------------------------------')
+    log.debug('Executor Shutdown')
+    EXECUTOR.shutdown()
 
 
 if __name__ == '__main__':
