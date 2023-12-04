@@ -265,7 +265,7 @@ log.debug("Executor init")
 
 def main():
     for pc in target_list:
-        pc = pc.upper()
+        pc = pc.upper().strip()
         sleep(3)
         log.info(f"STARTED on {pc}")
         EXECUTOR.submit(run_per_pc, pc)
