@@ -6,8 +6,8 @@ Written for and at CSU Chico to reduce confusion over what office/department sup
 ## How-To:
 1. Edit values in the Config.yaml file
 2. Run main.py
-3. Set desktop background to the path you set in 'LocalDestination' in the yaml.
-    Note: this can be done via Group Policy at User Configuration > Policies > Admin Templates > Control Panel > Desktop > Desktop > DesktopWallpaper
+3. Set desktop background by Group Policy to the path you set in 'LocalDestination' in the yaml.
+    Note: this can be done via Group Policy Editor at User Configuration > Policies > Admin Templates > Control Panel > Desktop > Desktop > DesktopWallpaper
 
 ## Requires:
 - Windows 10+ on your machine and target machines
