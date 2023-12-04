@@ -5,7 +5,7 @@ import subprocess
 import yaml
 import re
 import logging as log
-from os import mkdir, path
+from os import makedirs
 from concurrent import futures
 from time import sleep
 
@@ -21,12 +21,8 @@ OWNERSHIP = config["Ownership"]
 LOG_PATH = config["BasicPaths"]["LogFileDirectory"]
 
 
-def confirm_log_path(local_directory) -> None:
-    if not path.exists(local_directory):
-        print(f"Creating directory for logs at {local_directory}")
-        mkdir(local_directory)
-    else:
-        print(f"logging to {local_directory}")
+def confirm_log_path(local_directory):
+    makedirs(local_directory, exist_ok=True)
 
 
 confirm_log_path(LOG_PATH)
